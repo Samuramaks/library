@@ -33,7 +33,7 @@ public class SecurityConfig{
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(authorize -> authorize.requestMatchers("/books/*")
         .hasAnyAuthority(RoleUser.LIBRARIAN.name(), RoleUser.USER.name())
-        .requestMatchers( "/admin/*").hasAuthority(RoleUser.LIBRARIAN.name())
+        .requestMatchers( "/admin/**").hasAuthority(RoleUser.LIBRARIAN.name())
         .requestMatchers("/register", "/auth").permitAll()
         .anyRequest().authenticated())
         .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
