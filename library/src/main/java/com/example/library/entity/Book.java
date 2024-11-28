@@ -1,26 +1,37 @@
 package com.example.library.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Table(name = "books")
 public class Book {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String title;
+
+    @Column(unique = true)
+    private String isbn;
+
+    private String description;
     private String genre;
     private Integer publicationYear;
     private Integer copiesAvailable;
+    private Integer totalCopies;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
+    @JsonBackReference
     private Author author;
 
-    @OneToMany(mappedBy = "book")
-    private Set<Loan> loans;
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Loan> loans = new HashSet<>();
 
     // Геттеры и сеттеры
     public Long getId() {
@@ -37,6 +48,22 @@ public class Book {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getGenre() {
@@ -63,6 +90,14 @@ public class Book {
         this.copiesAvailable = copiesAvailable;
     }
 
+    public Integer getTotalCopies() {
+        return totalCopies;
+    }
+
+    public void setTotalCopies(Integer totalCopies) {
+        this.totalCopies = totalCopies;
+    }
+
     public Author getAuthor() {
         return author;
     }
@@ -77,5 +112,16 @@ public class Book {
 
     public void setLoans(Set<Loan> loans) {
         this.loans = loans;
+    }
+
+    // Вспомогательные методы
+    public void addLoan(Loan loan) {
+        loans.add(loan);
+        loan.setBook(this);
+    }
+
+    public void removeLoan(Loan loan) {
+        loans.remove(loan);
+        loan.setBook(null);
     }
 }
